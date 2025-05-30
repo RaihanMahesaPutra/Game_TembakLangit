@@ -41,19 +41,14 @@ var scenePlay = new Phaser.Class({
         // fungsi dengan parameter posisi x dan posisi y untuk
         // membuat background pada lapisan paling bawah sendiri
         this.createBgBottom = function (xPos, yPos) {
-            let container = this.add.container(xPos, yPos);
-            container.setDepth(1);
-
-            // Background utama
-            let bgBottom = this.add.image(0, 0, 'BG' + this.lastBgIndex);
-            bgBottom.setOrigin(0.5, 0.5);
-            bgBottom.setDisplaySize(this.bgBottomSize.width, this.bgBottomSize.height);
+            let bgBottom = this.add.image(xPos, yPos, 'BG' + this.lastBgIndex);
             bgBottom.setData('kecepatan', 3);
+            bgBottom.setDepth(1);
             bgBottom.flipX = Phaser.Math.Between(0, 1) === 1;
+            this.arrBgBottom.push(bgBottom);
 
-            container.add(bgBottom);
-
-            // Cek apakah akan menambahkan transisi
+            // menambahkan background transisi di posisi paling atas background apabila
+            // index/urutan tekstur background sebelumnya berbeda dengan background baru
             let newBgIndex = Phaser.Math.Between(1, 3);
             if (newBgIndex !== this.lastBgIndex) {
                 let bgBottomAdditon = this.add.image(xPos, yPos - this.bgBottomSize.height / 2, 'GroundTransisi');
@@ -64,28 +59,24 @@ var scenePlay = new Phaser.Class({
                 this.arrBgBottom.push(bgBottomAdditon);
             }
 
-            container.setData('kecepatan', 3);
-            this.arrBgBottom.push(container);
-
+            // menampung index/urutan tekstur background yang baru saja dibuat
+            // untuk dibandingkan pada penambahan background berikutnya
             this.lastBgIndex = newBgIndex;
         };
 
+        // fungsi untuk menentukan posisi dari background paling bawah sendiri,
+        // jadi untuk membuat background baru tinggal memanggil fungsi ini
         this.addBGBottom = function () {
             if (this.arrBgBottom.length > 0) {
                 let lastBG = this.arrBgBottom[this.arrBgBottom.length - 1];
-                let nextY = lastBG.y - this.bgBottomSize.height;
-
-                // Jika ada transisi, kurangi lagi posisinya
                 if (lastBG.getData('tambahan')) {
-                    nextY -= 128; // tinggi GroundTransisi
+                    lastBG = this.arrBgBottom[this.arrBgBottom.length - 2];
                 }
-
-                this.createBgBottom(game.canvas.width / 2, nextY);
+                this.createBgBottom(game.canvas.width / 2, lastBG.y - this.bgBottomSize.height / 2);
             } else {
                 this.createBgBottom(game.canvas.width / 2, game.canvas.height + this.bgBottomSize.height / 2);
             }
         };
-
 
         // membuat 3 background pada lapisan paling bawah sendiri
         // dengan cukup memanggil fungsi 'addBGBottom' sebanyak 3 kali
@@ -400,17 +391,14 @@ var scenePlay = new Phaser.Class({
     update: function () {
         // mengakses array BG Bottom untuk digerakkan dan dihapus jika sudah tidak terlihat
         for (let i = 0; i < this.arrBgBottom.length; i++) {
-            let bg = this.arrBgBottom[i];
-            bg.y += bg.getData('kecepatan');
-
-            if (bg.y > game.canvas.height + this.bgBottomSize.height / 2) {
+            this.arrBgBottom[i].y += this.arrBgBottom[i].getData('kecepatan');
+            if (this.arrBgBottom[i].y > game.canvas.height + this.bgBottomSize.height / 2) {
                 this.addBGBottom();
-                bg.destroy();
+                this.arrBgBottom[i].destroy();
                 this.arrBgBottom.splice(i, 1);
                 break;
             }
         }
-
         // mengakses array BG Top untuk digerakkan dan dihapus jika sudah tidak terlihat
         for (let i = 0; i < this.arrBgTop.length; i++) {
             this.arrBgTop[i].y += this.arrBgTop[i].getData('kecepatan');

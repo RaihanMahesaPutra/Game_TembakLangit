@@ -56,12 +56,15 @@ var scenePlay = new Phaser.Class({
             // Cek apakah akan menambahkan transisi
             let newBgIndex = Phaser.Math.Between(1, 3);
             if (newBgIndex !== this.lastBgIndex) {
-                let bgBottomAdditon = this.add.image(xPos, yPos - this.bgBottomSize.height / 2, 'GroundTransisi');
-                bgBottomAdditon.setData('kecepatan', 3);
-                bgBottomAdditon.setData('tambahan', true);
-                bgBottomAdditon.setDepth(2);
-                bgBottomAdditon.flipX = Phaser.Math.Between(0, 1) === 1;
-                this.arrBgBottom.push(bgBottomAdditon);
+                let bgTransisi = this.add.image(0, -this.bgBottomSize.height, 'GroundTransisi');
+                bgTransisi.setOrigin(0.5, 1);
+                bgTransisi.setDisplaySize(this.bgBottomSize.width, 128); // sesuaikan dengan tinggi asli gambar transisi
+                bgTransisi.setData('kecepatan', 3);
+                bgTransisi.flipX = Phaser.Math.Between(0, 1) === 1;
+                container.add(bgTransisi);
+
+                // Tandai bahwa container ini punya transisi
+                container.setData('tambahan', true);
             }
 
             container.setData('kecepatan', 3);
@@ -85,7 +88,6 @@ var scenePlay = new Phaser.Class({
                 this.createBgBottom(game.canvas.width / 2, game.canvas.height + this.bgBottomSize.height / 2);
             }
         };
-
 
         // membuat 3 background pada lapisan paling bawah sendiri
         // dengan cukup memanggil fungsi 'addBGBottom' sebanyak 3 kali

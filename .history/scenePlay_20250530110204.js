@@ -32,60 +32,62 @@ var scenePlay = new Phaser.Class({
         this.lastBgIndex = Phaser.Math.Between(1, 3);
 
         // membuat penampung data ukuran gambar
-        // background pada lapisan paling bawah sendiri
+         // membuat penampung data ukuran gambar background pada lapisan paling bawah sendiri
         this.bgBottomSize = { 'width': 768, 'height': 1664 };
 
         // array untuk menampung semua background lapisan bawah
         this.arrBgBottom = [];
 
-        // fungsi dengan parameter posisi x dan posisi y untuk
-        // membuat background pada lapisan paling bawah sendiri
-        this.createBgBottom = function (xPos, yPos) {
+        // fungsi untuk membuat background pada lapisan paling bawah sendiri
+        this.createBgBottom = function (xPos, yPos, bgIndex, needTransition) {
             let container = this.add.container(xPos, yPos);
             container.setDepth(1);
 
             // Background utama
-            let bgBottom = this.add.image(0, 0, 'BG' + this.lastBgIndex);
+            let bgBottom = this.add.image(0, 0, 'BG' + bgIndex);
             bgBottom.setOrigin(0.5, 0.5);
             bgBottom.setDisplaySize(this.bgBottomSize.width, this.bgBottomSize.height);
-            bgBottom.setData('kecepatan', 3);
             bgBottom.flipX = Phaser.Math.Between(0, 1) === 1;
-
             container.add(bgBottom);
 
-            // Cek apakah akan menambahkan transisi
-            let newBgIndex = Phaser.Math.Between(1, 3);
-            if (newBgIndex !== this.lastBgIndex) {
-                let bgBottomAdditon = this.add.image(xPos, yPos - this.bgBottomSize.height / 2, 'GroundTransisi');
-                bgBottomAdditon.setData('kecepatan', 3);
-                bgBottomAdditon.setData('tambahan', true);
-                bgBottomAdditon.setDepth(2);
-                bgBottomAdditon.flipX = Phaser.Math.Between(0, 1) === 1;
-                this.arrBgBottom.push(bgBottomAdditon);
+            // Tambahkan transisi jika diperlukan
+            if (needTransition) {
+                let bgTransisi = this.add.image(0, -this.bgBottomSize.height / 2, 'GroundTransisi');
+                bgTransisi.setOrigin(0.5, 0.5);
+                bgTransisi.setDisplaySize(this.bgBottomSize.width, 128);
+                bgTransisi.flipX = Phaser.Math.Between(0, 1) === 1;
+                container.add(bgTransisi);
             }
 
             container.setData('kecepatan', 3);
             this.arrBgBottom.push(container);
-
-            this.lastBgIndex = newBgIndex;
+            
+            return container;
         };
 
+        // fungsi untuk menambahkan background baru
         this.addBGBottom = function () {
-            if (this.arrBgBottom.length > 0) {
-                let lastBG = this.arrBgBottom[this.arrBgBottom.length - 1];
-                let nextY = lastBG.y - this.bgBottomSize.height;
-
-                // Jika ada transisi, kurangi lagi posisinya
-                if (lastBG.getData('tambahan')) {
-                    nextY -= 128; // tinggi GroundTransisi
-                }
-
-                this.createBgBottom(game.canvas.width / 2, nextY);
+            let yPos;
+            let needTransition = false;
+            
+            if (this.arrBgBottom.length === 0) {
+                // Background pertama - posisi di tengah layar
+                yPos = game.canvas.height / 2;
             } else {
-                this.createBgBottom(game.canvas.width / 2, game.canvas.height + this.bgBottomSize.height / 2);
+                // Background selanjutnya - posisi berdasarkan background terakhir
+                let lastBG = this.arrBgBottom[this.arrBgBottom.length - 1];
+                yPos = lastBG.y - this.bgBottomSize.height;
+                
+                // Tentukan apakah perlu transisi (ganti background)
+                let newBgIndex = Phaser.Math.Between(1, 3);
+                if (newBgIndex !== this.currentBgIndex) {
+                    needTransition = true;
+                    this.currentBgIndex = newBgIndex;
+                }
             }
-        };
 
+            this.createBgBottom(game.canvas.width / 2, yPos, this.currentBgIndex, needTransition);
+        };
 
         // membuat 3 background pada lapisan paling bawah sendiri
         // dengan cukup memanggil fungsi 'addBGBottom' sebanyak 3 kali

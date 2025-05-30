@@ -43,32 +43,35 @@ var scenePlay = new Phaser.Class({
         this.createBgBottom = function (xPos, yPos) {
             let container = this.add.container(xPos, yPos);
             container.setDepth(1);
+            container.setData('kecepatan', 3);
 
             // Background utama
             let bgBottom = this.add.image(0, 0, 'BG' + this.lastBgIndex);
             bgBottom.setOrigin(0.5, 0.5);
             bgBottom.setDisplaySize(this.bgBottomSize.width, this.bgBottomSize.height);
-            bgBottom.setData('kecepatan', 3);
+            bgBottom.setRoundPixels(true);
             bgBottom.flipX = Phaser.Math.Between(0, 1) === 1;
-
             container.add(bgBottom);
 
-            // Cek apakah akan menambahkan transisi
+            // Periksa apakah background berganti
             let newBgIndex = Phaser.Math.Between(1, 3);
             if (newBgIndex !== this.lastBgIndex) {
-                let bgBottomAdditon = this.add.image(xPos, yPos - this.bgBottomSize.height / 2, 'GroundTransisi');
-                bgBottomAdditon.setData('kecepatan', 3);
-                bgBottomAdditon.setData('tambahan', true);
-                bgBottomAdditon.setDepth(2);
-                bgBottomAdditon.flipX = Phaser.Math.Between(0, 1) === 1;
-                this.arrBgBottom.push(bgBottomAdditon);
+                // Letakkan transisi tepat di bawah gambar utama
+                let transisiY = this.bgBottomSize.height / 2 - 1; // sedikit overlap 1px
+                let bgTransisi = this.add.image(0, transisiY, 'GroundTransisi');
+                bgTransisi.setOrigin(0.5, 0);
+                bgTransisi.setDisplaySize(this.bgBottomSize.width, 128); // tinggi transisi
+                bgTransisi.setRoundPixels(true);
+                bgTransisi.flipX = Phaser.Math.Between(0, 1) === 1;
+                container.add(bgTransisi);
+
+                container.setData('tambahan', true);
             }
 
-            container.setData('kecepatan', 3);
-            this.arrBgBottom.push(container);
-
             this.lastBgIndex = newBgIndex;
+            this.arrBgBottom.push(container);
         };
+
 
         this.addBGBottom = function () {
             if (this.arrBgBottom.length > 0) {
