@@ -37,9 +37,6 @@ var scenePilihHero = new Phaser.Class({
         // membuat pesawat hero bisa dikenai interaksi
         heroShip.setInteractive();
 
-        // Flag untuk mencegah multiple scene transitions
-        this.isTransitioning = false;
-
         // event listener 'gameobjectover'
         this.input.on('gameobjectover', function (pointer, gameObject) {
             // melakukan cek jika game objek yang sedang terkena
@@ -100,13 +97,9 @@ var scenePilihHero = new Phaser.Class({
 
         // event listener 'gameobjectup'
         this.input.on('gameobjectup', function (pointer, gameObject) {
-            // Cegah multiple transitions
-            if (this.isTransitioning) return;
-
             if (gameObject === buttonMenu) {
                 buttonMenu.setTint(0xffffff);
                 snd_touch.play();
-                this.isTransitioning = true;
                 this.scene.start('sceneMenu');
             }
             if (gameObject === buttonNext) {
@@ -127,11 +120,7 @@ var scenePilihHero = new Phaser.Class({
             }
             if (gameObject === heroShip) {
                 heroShip.setTint(0xffffff);
-                this.isTransitioning = true;
-                // Tambahkan sedikit delay untuk feedback visual
-                this.time.delayedCall(100, () => {
-                    this.scene.start('scenePlay');
-                });
+                this.scene.start('scenePlay');
             }
         }, this);
     },

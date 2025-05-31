@@ -31,11 +31,6 @@ var sceneMenu = new Phaser.Class({
             'CENTER': game.canvas.height / 2,
             'BOTTOM': game.canvas.height,
         };
-
-        // Inisialisasi status sound global jika belum ada
-        if (typeof window.isSoundEnabled === 'undefined') {
-            window.isSoundEnabled = true;
-        }
     
         // membuat tampilan
         // menambahkan backdrop
@@ -51,8 +46,7 @@ var sceneMenu = new Phaser.Class({
         buttonPlay.setInteractive();
         
         //menambahkan tombol Sound ke tampilan scene menu
-        var buttonSound = this.add.image(X_POSITION.RIGHT - 70, Y_POSITION.BOTTOM - 70, 
-            window.isSoundEnabled ? 'ButtonSoundOn' : 'ButtonSoundOff');
+        var buttonSound = this.add.image(X_POSITION.RIGHT - 70, Y_POSITION.BOTTOM - 70, 'ButtonSoundOn');
         buttonSound.setInteractive();
         
         // menambahkan deteksi input klik mouse dan pergerakan pada mouse
@@ -83,36 +77,13 @@ var sceneMenu = new Phaser.Class({
                 buttonPlay.setTint(0xffffff);
                 //memainkan sound efek 'touch' setiap kali
                 //tombol play yang di-klik, dilepas kliknya
-                if (window.isSoundEnabled && snd_touch) {
-                    snd_touch.play();
-                }
+                snd_touch.play();
                 // FIXED: memanggil scene pilih hero terlebih dahulu, bukan langsung ke play
                 this.scene.start('scenePilihHero');
             }
             if (gameObject === buttonSound) {
                 buttonSound.setTint(0xffffff);
-                
-                // Toggle status sound
-                window.isSoundEnabled = !window.isSoundEnabled;
-                
-                // Ganti texture tombol sesuai status
-                buttonSound.setTexture(window.isSoundEnabled ? 'ButtonSoundOn' : 'ButtonSoundOff');
-                
-                // Control semua audio dalam game
-                if (window.isSoundEnabled) {
-                    // Hidupkan kembali background music jika ada
-                    if (this.bgMusic && !this.bgMusic.isPlaying) {
-                        this.bgMusic.play();
-                    }
-                } else {
-                    // Matikan semua audio
-                    this.sound.pauseAll();
-                }
-                
-                // Play sound effect untuk button click (jika sound enabled)
-                if (window.isSoundEnabled && this.btnSound) {
-                    this.btnSound.play();
-                }
+                // Tambahkan logika untuk toggle sound on/off di sini jika diperlukan
             }
         }, this);
 
@@ -130,11 +101,7 @@ var sceneMenu = new Phaser.Class({
             volume: 0.5,
             loop: true
         });
-        
-        // Play background music hanya jika sound enabled
-        if (window.isSoundEnabled) {
-            this.bgMusic.play();
-        }
+        this.bgMusic.play();
     },    
     update: function () { 
         if (snd_touch == null){

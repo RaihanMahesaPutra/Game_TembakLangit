@@ -364,10 +364,7 @@ var scenePlay = new Phaser.Class({
 
                 //memainkan sound efek tembakan setiap 1/4 detik sekali
                 //berbarengan dengan munculnya peluru dari pesawat hero
-                // Cek status sound sebelum memainkan audio
-                if (window.isSoundEnabled && this.snd_shoot) {
-                    this.snd_shoot.play();
-                }
+                this.snd_shoot.play();
 
                 // melakukan pengecekan jika jumlah musuh yang tampil masih di bawah 3
             },
@@ -398,40 +395,8 @@ var scenePlay = new Phaser.Class({
             volume: 0.5,
             loop: true
         });
+        this.bgMusic.play();
         
-        // Play background music hanya jika sound enabled
-        if (window.isSoundEnabled) {
-            this.bgMusic.play();
-        }
-    },
-    // Function untuk handle game over
-    triggerGameOver: function() {
-        if (this.isGameOver) return; // Prevent multiple calls
-        
-        this.isGameOver = true;
-        
-        // Stop all timers
-        if (this.enemySpawnTimer) {
-            this.enemySpawnTimer.remove();
-        }
-        if (this.bulletSpawnTimer) {
-            this.bulletSpawnTimer.remove();
-        }
-        
-        // Stop background music
-        if (this.bgMusic) {
-            this.bgMusic.stop();
-        }
-        
-        // Hide hero ship
-        this.heroShip.setActive(false);
-        this.heroShip.setVisible(false);
-        
-        // Add small delay before transitioning to game over scene
-        this.time.delayedCall(500, () => {
-            console.log("Transitioning to GameOver with score:", this.scoreValue);
-            this.scene.start("sceneGameOver", { score: this.scoreValue });
-        });
     },
     update: function () {
         // mengakses array BG Bottom untuk digerakkan dan dihapus jika sudah tidak terlihat
@@ -457,7 +422,8 @@ var scenePlay = new Phaser.Class({
                 break;
             }
         }
-        // melakukan pen
+        // melakukan pengecekan tombol arah pada keyboard yang sedang ditekan
+
         // melakukan pengecekan apabila tombol keyboard arah 'KIRI' sedang ditekan
         // dan apabila nilai pada posisi 'x' pesawat hero lebih dari 70
         if (this.cursorKeyListener.left.isDown && this.heroShip.x > 70) {
